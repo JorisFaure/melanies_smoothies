@@ -1,5 +1,6 @@
 # Import python packages
 import streamlit as st
+import requests
 from snowflake.snowpark.functions import col
 
 helpful_links = [
@@ -30,11 +31,11 @@ ingredient_list = st.multiselect(
 )
 
 if ingredient_list :
-    st.write(ingredient_list)
-    st.text(ingredient_list)
     ingredients_string=''
     for fruit_chosen in ingredient_list :
         ingredients_string += fruit_chosen + ' '
+        smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
+        sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
     st.write(ingredients_string)
 
     my_insert_stmt = """ insert into smoothies.public.orders(ingredients, name_on_order)
@@ -44,8 +45,6 @@ if ingredient_list :
     if time_to_insert:
         session.sql(my_insert_stmt).collect()
         st.success('Your Smoothie is ordered, ' + name_on_order + '!', icon="✅")
-# New section to display smoothifroot nutrition information
-import requests
-smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
-# st.text(smoothiefroot_response.json())
-sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+
+
+
